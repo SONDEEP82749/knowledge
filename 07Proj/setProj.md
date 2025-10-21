@@ -25,3 +25,12 @@ testing
 ! yes
 @SONDEEP82749
 $yes &lkd
+<br>
+//"editor.fontSize", 20,
+
+*/yes*/
+
+*font-feature.
+
+/** 
+*control the font family.
