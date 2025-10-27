@@ -28,7 +28,7 @@
         const URL = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${id}&key=${API_KEY}`;
 
         try {
-            const res = await fetch(URL);
+            const res = await fetch (URL);
             const data = await res.json();
 
             if (!data.items || data.items.length === 0) {
