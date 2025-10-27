@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>YouTube Video Info</title>
+<style>
+    body { font-family: Arial; margin: 20px; }
+    #result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    img { width: 300px; border-radius: 10px; }
+</style>
+</head>
+<body>
+<h2>YouTube Video Details Fetcher ✅</h2>
+<input type="text" id="videoId" placeholder="Enter YouTube Video ID (e.g. C5TWtDeE1Gw)" size="40">
+<button onclick="fetchVideo()">Get Details</button>
+<div id="result"></div>
+
+<script>
+    const API_KEY = "AIzaSyBjROwcItMCAHcgP9gJ3KgY2NOk01-z3WY"; // 🔹 यहां अपनी API Key डालें
+
+    async function fetchVideo() {
+        const id = document.getElementById("videoId").value.trim();
+        if (!id) return alert("Please enter a Video ID!");
+
+        const URL = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${id}&key=${API_KEY}`;
+
+        try {
+            const res = await fetch (URL);
+            const data = await res.json();
+
+            if (!data.items || data.items.length === 0) {
+                document.getElementById("result").innerHTML = "❌ No Data Found! Check Video ID or API Key";
+                return;
+            }
+
+            const v = data.items[0];
+            const title = v.snippet.title;
+            const thumb = v.snippet.thumbnails.high.url;
+            const views = v.statistics.viewCount;
+            const likes = v.statistics.likeCount;
+            const duration = v.contentDetails.duration;
+
+            document.getElementById("result").innerHTML = `
+                <h3>${title}</h3>
+                <img src="${thumb}" alt="Thumbnail">
+                <p><b>Views:</b> ${views}</p>
+                <p><b>Likes:</b> ${likes}</p>
+                <p><b>Duration:</b> ${duration}</p>
+                <a href="https://www.youtube.com/watch?v=${id}" target="_blank">▶ Watch Video</a>
+            `;
+        } catch (err) {
+            console.error(err);
+            document.getElementById("result").innerHTML = "❌ Failed to fetch data!";
+        }
+    }
+</script>
+
+</body>
+</html>
