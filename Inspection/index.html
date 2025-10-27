@@ -1,268 +1,79 @@
-<!--
-YouTube Inspector — Single-file HTML app
-Purpose: Paste a YouTube video URL (or ID) and it shows full details (title, description, channel, publish date,
-keywords/tags, duration, views, likes, comments, thumbnails) using:
- 1) YouTube Data API v3 (recommended, shows tags/keywords)
- 2) oEmbed fallback (no API key — shows basic data only)
-
-How to use:
- 1. Get a Google API key and enable YouTube Data API v3. (See README section below)
- 2. Open this file in browser (double-click) or host via GitHub Pages.
- 3. Enter your API key (optional but required for tags & full stats), paste a YouTube URL, click Inspect.
-
-Important notes (legal & quota):
- - You must follow YouTube Terms of Service when accessing data.
- - YouTube API has quotas; heavy usage may require billing and quota increases.
- - Some fields (like "likeCount") may be unavailable / zero due to API changes.
-
-This single-file app is ready to be put on GitHub (create a repo and push this file), then enable GitHub Pages
-for the repository (branch: main / docs folder) to serve as a static page.
--->
-
-<!doctype html>
-<html lang="hi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>YouTube Inspector — Video Details</title>
-  <style>
-    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa7bd;--accent:#38bdf8;--glass:rgba(255,255,255,0.03)}
-    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue', Arial}
-    body{background:linear-gradient(180deg,#071027 0%, #071827 100%);color:#e6eef8;padding:24px;box-sizing:border-box}
-    .container{max-width:980px;margin:0 auto}
-    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-    header h1{margin:0;font-size:20px}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:16px;box-shadow:0 6px 18px rgba(2,6,23,0.6);}
-    label{font-size:13px;color:var(--muted)}
-    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;margin-top:6px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
-    .btn{background:var(--accent);border:none;padding:10px 12px;border-radius:8px;color:#04202b;cursor:pointer;font-weight:600}
-    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
-    pre{white-space:pre-wrap;word-break:break-word;background:var(--glass);padding:12px;border-radius:8px;color:var(--muted);font-size:13px}
-    .preview{display:flex;gap:12px;align-items:flex-start}
-    img.thumb{width:220px;border-radius:8px}
-    .meta{flex:1}
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-    .tag{background:rgba(255,255,255,0.04);padding:6px 8px;border-radius:999px;font-size:13px}
-    .small{font-size:13px;color:var(--muted)}
-    .error{color:#ffadad;background:#3a1a1a;padding:8px;border-radius:6px}
-    footer{margin-top:16px;color:var(--muted);font-size:13px}
-    @media(max-width:760px){.row{grid-template-columns:1fr} .preview{flex-direction:column} img.thumb{width:100%}}
-  </style>
+<meta charset="UTF-8">
+<title>YouTube Video Details Fetcher</title>
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+input, button { width: 100%; padding: 10px; margin: 8px 0; font-size: 16px; }
+#result { margin-top: 20px; background: #f3f3f3; padding: 15px; border-radius: 6px; white-space: pre-wrap; }
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>YouTube Inspector — वीडियो की पूरी जानकारी (Hindi)</h1>
-      <div class="small">Paste YouTube URL → Inspect (API key optional, but required for tags)</div>
-    </header>
 
-    <div class="card">
-      <label>Google API Key (YouTube Data API v3) — optional, पर tags व विस्तृत डेटा के लिए चाहिए</label>
-      <input id="apiKey" type="text" placeholder="API Key डालें (या खाली छोड़ें)" />
+<h2>YouTube Video Details Fetcher ✅</h2>
+<input type="text" id="apiKey" placeholder="Enter Your YouTube API Key">
+<input type="text" id="videoUrl" placeholder="Paste YouTube Video URL">
+<button onclick="getVideoDetails()">Fetch Details</button>
 
-      <div style="height:8px"></div>
-
-      <label>YouTube Video URL या Video ID</label>
-      <input id="videoUrl" type="text" placeholder="https://www.youtube.com/watch?v=Ks-_Mh1QhMc या Ks-_Mh1QhMc" />
-
-      <div class="row" style="margin-top:12px">
-        <div>
-          <button class="btn" id="inspectBtn">Inspect Video</button>
-          <button class="btn secondary" id="clearBtn">Clear</button>
-        </div>
-        <div style="text-align:right">
-          <div class="small">Usage: App local चलाएँ या GitHub Pages पर host करें.</div>
-        </div>
-      </div>
-
-      <div id="output" style="margin-top:14px;display:none"></div>
-
-      <div id="log" style="margin-top:10px"></div>
-    </div>
-
-    <div id="resultCard" class="card" style="margin-top:14px;display:none">
-      <div class="preview">
-        <img id="thumb" class="thumb" src="" alt="thumbnail" />
-        <div class="meta">
-          <h2 id="title" style="margin:0"></h2>
-          <div class="small" id="channel"></div>
-          <div style="height:8px"></div>
-          <div id="stats" class="small"></div>
-          <div class="tags" id="tags"></div>
-        </div>
-      </div>
-
-      <div style="height:12px"></div>
-      <label>Description</label>
-      <pre id="description"></pre>
-
-      <div style="height:8px"></div>
-      <label>Raw JSON (API/oEmbed response)</label>
-      <pre id="rawJson" style="max-height:320px;overflow:auto"></pre>
-    </div>
-
-    <footer>
-      <strong>Instructions:</strong> अगर आप API key नहीं डालते तो ऐप oEmbed से basic जानकारी देगा (title, author, thumbnail). Tags (keywords) और विस्तृत statistics तभी मिलेंगे जब आप YouTube Data API key provide करें।
-    </footer>
-  </div>
+<div id="result"></div>
 
 <script>
-  // Helper: extract video ID from common YouTube URLs
-  function extractVideoID(urlOrId){
-    if(!urlOrId) return null;
-    urlOrId = urlOrId.trim();
-    // If already simple id
-    if(/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) return urlOrId;
-    try{
-      const u = new URL(urlOrId);
-      if(u.hostname.includes('youtu.be')){
-        return u.pathname.slice(1);
-      }
-      if(u.searchParams && u.searchParams.get('v')) return u.searchParams.get('v');
-      // sometimes embed urls
-      const parts = u.pathname.split('/');
-      const idx = parts.indexOf('embed');
-      if(idx>=0 && parts[idx+1]) return parts[idx+1];
-    } catch(e){
-      // not a URL — maybe it's a messy id
-      const m = urlOrId.match(/[a-zA-Z0-9_-]{11}/);
-      return m ? m[0] : null;
+function extractVideoId(url) {
+    const regExp = /(?:v=|youtu\.be\/|embed\/)([^&?]+)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+}
+
+async function getVideoDetails() {
+    const apiKey = document.getElementById("apiKey").value.trim();
+    const url = document.getElementById("videoUrl").value.trim();
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
+
+    if (!apiKey || !url) {
+        resultDiv.innerHTML = "🚫 Input missing!";
+        return;
     }
-    const m = urlOrId.match(/[a-zA-Z0-9_-]{11}/);
-    return m ? m[0] : null;
-  }
 
-  function humanDuration(iso){
-    // PT#H#M#S -> convert to readable
-    const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if(!m) return iso;
-    const parts = [];
-    if(m[1]) parts.push(m[1] + 'h');
-    if(m[2]) parts.push(m[2] + 'm');
-    if(m[3]) parts.push(m[3] + 's');
-    return parts.join(' ') || '0s';
-  }
-
-  function showLog(msg, level='info'){
-    const el = document.getElementById('log');
-    el.innerHTML = `<div class='small'>${msg}</div>`;
-  }
-
-  async function fetchOEmbed(id){
-    const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('oEmbed failed');
-    return await res.json();
-  }
-
-  async function fetchYouTubeAPI(id, apiKey){
-    const part = 'snippet,contentDetails,statistics';
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=${part}&id=${id}&key=${apiKey}`;
-    const res = await fetch(url);
-    if(!res.ok){
-      const text = await res.text();
-      throw new Error('YouTube API Error: ' + res.status + ' ' + text);
+    const videoId = extractVideoId(url);
+    if (!videoId) {
+        resultDiv.innerHTML = "🚫 Invalid YouTube URL!";
+        return;
     }
-    return await res.json();
-  }
 
-  function clearResult(){
-    document.getElementById('resultCard').style.display='none';
-    document.getElementById('rawJson').innerText='';
-    document.getElementById('description').innerText='';
-    document.getElementById('tags').innerHTML='';
-    document.getElementById('thumb').src='';
-  }
+    const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`;
 
-  document.getElementById('inspectBtn').addEventListener('click', async ()=>{
-    clearResult();
-    const apiKey = document.getElementById('apiKey').value.trim();
-    const url = document.getElementById('videoUrl').value.trim();
-    const id = extractVideoID(url);
-    if(!id){ showLog('Valid YouTube video id/url डालें'); return; }
-    showLog('Fetching data...');
+    try {
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-    let usedApi = false;
-    try{
-      // First, if apiKey present, try API
-      let apiJson = null, oembedJson = null;
-      if(apiKey){
-        usedApi = true;
-        const j = await fetchYouTubeAPI(id, apiKey);
-        if(!j.items || j.items.length===0) throw new Error('Video not found or API returned empty');
-        apiJson = j.items[0];
-        // Use snippet data primarily
-        const s = apiJson.snippet || {};
-        const cd = apiJson.contentDetails||{};
-        const st = apiJson.statistics||{};
-
-        document.getElementById('title').innerText = s.title || '—';
-        document.getElementById('channel').innerText = `${s.channelTitle || '—'} · Published: ${s.publishedAt ? new Date(s.publishedAt).toLocaleString() : '—'}`;
-        document.getElementById('thumb').src = (s.thumbnails && (s.thumbnails.maxres||s.thumbnails.high||s.thumbnails.standard||s.thumbnails.default))?.url || '';
-        document.getElementById('description').innerText = s.description || '—';
-
-        const tagsEl = document.getElementById('tags'); tagsEl.innerHTML='';
-        if(Array.isArray(s.tags)){
-          s.tags.forEach(t=>{
-            const d = document.createElement('div'); d.className='tag'; d.innerText = t; tagsEl.appendChild(d);
-          });
-        } else {
-          const d = document.createElement('div'); d.className='small'; d.innerText='(No tags available via API)'; tagsEl.appendChild(d);
+        if (!data.items || data.items.length === 0) {
+            resultDiv.innerHTML = "❌ कोई जानकारी नहीं मिली! API Key या URL check करें";
+            return;
         }
 
-        document.getElementById('stats').innerText = `Duration: ${humanDuration(cd.duration || '')} · Views: ${st.viewCount||'—'} · Likes: ${st.likeCount||'—'} · Comments: ${st.commentCount||'—'}`;
+        const video = data.items[0].snippet;
+        const stats = data.items[0].statistics;
 
-        document.getElementById('rawJson').innerText = JSON.stringify(apiJson, null, 2);
-        document.getElementById('resultCard').style.display = 'block';
-        showLog('Data fetched using YouTube Data API v3');
-        return;
-      }
+        const details = {
+            Title: video.title,
+            Description: video.description,
+            Published_At: video.publishedAt,
+            Channel_Title: video.channelTitle,
+            Tags: video.tags,
+            Views: stats.viewCount,
+            Likes: stats.likeCount,
+            Comments: stats.commentCount
+        };
 
-      // If no API key or API failed — fallback to oEmbed
-      oembedJson = await fetchOEmbed(id);
-      document.getElementById('title').innerText = oembedJson.title || '—';
-      document.getElementById('channel').innerText = `${oembedJson.author_name || '—'}`;
-      document.getElementById('thumb').src = oembedJson.thumbnail_url || '';
-      document.getElementById('description').innerText = '(Description is not provided by oEmbed)';
-      document.getElementById('tags').innerHTML = '<div class="small">(Tags require YouTube Data API key)</div>';
-      document.getElementById('stats').innerText = 'Basic details only (oEmbed)';
-      document.getElementById('rawJson').innerText = JSON.stringify(oembedJson, null, 2);
-      document.getElementById('resultCard').style.display = 'block';
-      showLog('oEmbed से basic data दिखाया गया — tags के लिए API key आवश्यक है');
+        resultDiv.innerHTML = JSON.stringify(details, null, 2);
 
-    } catch(err){
-      showLog(err.message || String(err));
+    } catch (err) {
+        resultDiv.innerHTML = "⚠️ Error: " + err.message;
     }
-  });
-
-  document.getElementById('clearBtn').addEventListener('click', ()=>{
-    document.getElementById('videoUrl').value='';
-    document.getElementById('apiKey').value='';
-    clearResult();
-    showLog('Cleared');
-  });
+}
 </script>
 
-<!--
-README (short) — Hindi
-1) Google API Key लेना (YouTube Data API v3 enable):
-   - https://console.cloud.google.com/ → New Project → APIs & Services → Enable APIs
-   - Search "YouTube Data API v3" → Enable
-   - Credentials → Create Credentials → API Key
-   - Paste उस API Key को ऊपर के input में
-
-2) Github पर host करना (GitHub Pages):
-   - नया repo बनाइए: e.g. youtube-inspector
-   - इस HTML फाइल को root में upload/commit कीजिए
-   - Settings → Pages → Source: main branch / root → Save → आपकी site बनेगी: https://<username>.github.io/<repo>/
-
-3) Limitations:
-   - YouTube API quota limits apply.
-   - Tags (keywords) केवल API के जरिये उपलब्ध होते हैं.
-   - किसी वीडियो के कुछ stats restricted हो सकते हैं.
-
-This file is intentionally single-file so you can drop it in a repo and host on GitHub Pages.
--->
 </body>
 </html>
