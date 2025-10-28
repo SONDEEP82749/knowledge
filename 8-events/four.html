@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+    <style>
+        body{
+            text-align: center;
+            margin-top: 50px;
+        }
+        button{
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+        }
+        #start { background: rgb(14, 212, 14); color: #fff; }
+        #stop { background: rgb(207, 4, 4); color: #fff; }
+        #start :hover { background: darkgreen; }
+        #stop :hover { background: darkred; }   
+    </style>
+
+</head>
+<body>
+    <h1>Chai aur Code</h1>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>       
+</body>
+<script>      
+    let againTest=null; 
+      function randomColor() {
+            const hex = "0123456789ABCDEF";
+            let color = "#";
+            for (let i = 0; i < 6; i++) {
+                color += hex[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    document.querySelector("#start").
+    addEventListener("click", function(){
+        if (againTest===null){
+        againTest = setInterval(function(){
+            document.body.style.backgroundColor =randomColor();
+        console.log("Hello Sondeep")}, 1000);
+        console.log("Started");
+    }else{console.log("Already Started")}
+});
+    
+    document.querySelector("#stop").
+    addEventListener("click", function(){
+        if (againTest!==null){
+        clearInterval(againTest);
+        againTest=null;
+        console.log("Stopped");
+        document.body.style.backgroundColor = "white";    
+    }else{console.log("Already Stopped")}
+});       
+    /*const sayDate = function(str){
+        console.log(str, Date.now());
+    }
+    const intervalID = setInterval(sayDate, 1000, "Hi there");
+     clearInterval (intervalID);*/
+  /* 
+    document.querySelector('#start').
+    addEventListerner("click", function(){
+        setInterval(sayDate, 1000, "Hi there");
+    });
+    
+    document.querySelector("#stop").
+    addEventListerner("click", intervalID);
+    */
+    </script>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>color change</title>
+    <!--<style>
+        body{
+            text-decoration: 230px;
+            margin-top:50px;
+            background-color:rgb(209, 214, 215);
+            
+        }
+        button {
+            font-size:20px;
+            padding:10px 20px;
+            margin:10px;
+
+        }
+        #start {background-color: rgb(rgb(185, 35, 35), green, blue);
+        color: white;}
+        #stop {background-color: rgb(255, 0, 0);
+        color: white;}
+    </style> -->
+</head>
+<body>  
+    <h1>Random Color</h1>  
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    
+</body>
+<script>
+
+    
+    const randomColor=function(){
+        const hex="0123456789ABCDEF";
+        const color="#";
+        for(let i=0,i<6;i++){
+            color +=hex[Math.floor(Math.random()*16)];
+        }
+        return color;
+    }
+    document.querySelector("#start").addEventListener("click", function(){
+        setInterval(function(){
+            console.log("Sondeep");
+            document.body.style.backgroundColor=randomColor();
+        },2000);
+    });
+    
+    /*
+    let againTest;
+    const changerColor=function(){
+        const hex='012345689ABCDEF'
+        let color='#';
+        for(let i=0;i<6;i++){
+            //console.log("color");
+            color +=hex[Math.floor(Math.random()*16)];
+        }
+        return color;    
+    }       
+    
+    const reStart=document.querySelector("#start").
+    addEventListener("click", function(){
+        if(againTest!=null){
+            setInterval(function(){
+                console.log("Sondeep");
+                document.body.style.
+                backgroundColor=changerColor();
+            },2000);
+        }
+    });     
+    const reStop=document.querySelector("#stop").
+    addEventListener("click", function(){
+        clearInterval(reStart);
+        console.log("Stoped");
+        document.body.style.backgroundColor="white";
+    }); */
+</script>
+</html>

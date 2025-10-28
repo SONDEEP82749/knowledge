@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <h1>Chai aur Code</h1>
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>   
+    let againTest;
+</body>
+<script>       
+    document.querySelector("#start").
+    addEventListener("click", function(){
+        againTest = setInterval(function(){
+        console.log("Hello Sondeep")}, 1000)
+    });
+    
+    document.querySelector("#stop").
+    addEventListener("click", function(){
+        clearInterval(againTest);
+        console.log("Stopped");
+        document.backgroundColor = "red";    
+    });
+       
+    /*const sayDate = function(str){
+        console.log(str, Date.now());
+    }
+    const intervalID = setInterval(sayDate, 1000, "Hi there");
+     clearInterval (intervalID);*/
+  /* 
+    document.querySelector('#start').
+    addEventListerner("click", function(){
+        setInterval(sayDate, 1000, "Hi there");
+    });
+    
+    document.querySelector("#stop").
+    addEventListerner("click", intervalID);
+    */
+    </script>
+</html>
