@@ -16,13 +16,49 @@
   q('calculateBtn').addEventListener('click', ()=>{
     // show popup ad (placeholder)
     q('popupAd').style.display = 'flex';
+//--- service years calculation fix ---
+// ===========================
+// Auto-calculate Service Years
+// ===========================
+  const dob = q('dob').value ? new Date(q('dob').value) : null;
+  const doe = q('doe').value ? new Date(q('doe').value) : null;
+  const serviceYears = parseFloat(q('serviceYears').value) || 0;
+  document.addEventListener('DOMContentLoaded', () => {
+  const enrolInput = document.getElementById('enrolment');
+  const retireInput = document.getElementById('retirement');
+  const serviceInput = document.getElementById('serviceYears');
 
-    const dob = q('dob').value ? new Date(q('dob').value) : null;
+  function calculateServiceYears() {
+    const enrolDate = enrolInput.valueAsDate;
+    const retireDate = retireInput.valueAsDate;
+
+    if (enrolDate && retireDate) {
+      let years = retireDate.getFullYear() - enrolDate.getFullYear();
+      const monthDiff = retireDate.getMonth() - enrolDate.getMonth();
+      const dayDiff = retireDate.getDate() - enrolDate.getDate();
+
+      // Adjust if retirement month/day are before enrolment month/day
+      if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+        years--;
+      }
+
+      serviceInput.value = years >= 0 ? years : 0; // never negative
+    }
+  }
+
+  enrolInput.addEventListener('change', calculateServiceYears);
+  retireInput.addEventListener('change', calculateServiceYears);
+});
+
+    /*const dob = q('dob').value ? new Date(q('dob').value) : null;
     const doe = q('doe').value ? new Date(q('doe').value) : null;
     const dor = q('dor').value ? new Date(q('dor').value) : null;
     let serviceYears = parseFloat(q('serviceYears').value) || 0;
     if(!serviceYears && doe && dor) serviceYears = Math.floor((dor - doe)/(365.25*24*3600*1000));
-    if(!serviceYears && doe) serviceYears = Math.floor((Date.now() - doe)/(365.25*24*3600*1000));
+    if(!serviceYears && doe) serviceYears = Math.floor((Date.now() - doe)/(365.25*24*3600*1000));*/
+//end--- service years calculation fix ---
+
+    
 
     const basicPay = parseFloat(q('basicPay').value||0);
     const msPay = parseFloat(q('msPay').value||0);

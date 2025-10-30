@@ -16,16 +16,19 @@
   </header>
 
   <main class="container">
+    <!-- BEGIN: form + image row (form left, image right) -->
+<div class="form-image-row">
+  <!-- LEFT: Form (flex:1) -->
+  <div class="form-side">
     <form id="pensionForm" class="form" onsubmit="return false;">
-      <label>Date of Birth (dd/mm/yyyy)</label>
-      <input id="dob" type="date" />
+      <label for="enrolment">Date of Enrolment (dd/mm/yyyy)</label>
+      <input type="date" id="enrolment" />
 
-      <label>Date of Enrolment</label>
-      <input id="doe" type="date" />
+      <label for="retirement">Date of Retirement (dd/mm/yyyy)</label>
+      <input type="date" id="retirement" />
 
-      <label>Date of Retirement</label>
-      <input id="dor" type="date" />
-
+      <label for="serviceYears">Service Years (completed)</label>
+      <input type="number" id="serviceYears" placeholder="Auto-calculated" readonly />
       <label>Rank</label>
       <select id="rank">
         <option>Sep</option><option>LNk</option><option>Nk</option><option>Hav</option>
@@ -75,11 +78,18 @@
         <button id="resetBtn" class="btn secondary">Reset</button>
       </div>
     </form>
+  </div>
 
-    <aside class="image-area">
-      <div class="image-box"><img id="previewImg" src="img/army-placeholder.png" alt="Army image" /></div>
-      <small class="small">Place images in the <code>/img</code> folder to change preview (FTP or GitHub upload).</small>
-    </aside>
+  <!-- RIGHT: Image (fixed width) -->
+  <div class="image-side">
+    <div class="image-box"><img id="previewImg" src="img/army-placeholder.png" alt="Army image" /></div>
+    <small class="small">Place images in the <code>/img</code> folder to change preview (FTP or GitHub upload).</small>
+  </div>
+</div>
+<!-- END: form + image row -->
+
+  </div>
+    </form>    
 
     <div class="ad-row">
       <div class="ad-slot">Left Bottom Ad placeholder</div>
